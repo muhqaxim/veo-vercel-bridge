@@ -111,15 +111,19 @@ app.post('/generate', async (req, res) => {
     await ai.files.download({ file: generatedVideo, downloadPath: tmpFile });
     console.log(`💾 Video saved to temp: ${tmpFile}`);
 
-    // 4. Read back as base64 and clean up
-    const videoBase64 = fs.readFileSync(tmpFile).toString('base64');
-    fs.unlinkSync(tmpFile);
+    // 4. Stream the file back and clean up
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Content-Disposition', `attachment; filename="video-${Date.now()}.mp4"`);
 
-    // 5. Respond — n8n can decode the base64 directly
-    return res.status(200).json({
-      success: true,
-      videoBase64,
-      mimeType: 'video/mp4',
+    return res.sendFile(tmpFile, (err) => {
+      if (err) {
+        console.error('❌ Error sending file:', err);
+      }
+      // Clean up the temp file after sending
+      if (fs.existsSync(tmpFile)) {
+        fs.unlinkSync(tmpFile);
+        console.log(`🗑️  Temp file cleaned up: ${tmpFile}`);
+      }
     });
 
   } catch (err) {
