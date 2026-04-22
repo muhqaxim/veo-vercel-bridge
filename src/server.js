@@ -6,7 +6,7 @@ import os from 'os';
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '50mb' }));
@@ -68,25 +68,31 @@ app.post('/generate', async (req, res) => {
 
   console.log(`\n🎬 [/generate] prompt="${prompt.slice(0, 80)}…"  aspectRatio=${aspectRatio}`);
 
+  let resolved = null;
+  // Attach image when provided (image-to-video mode)
+  if (imageUrl) {
+    try {
+      resolved = await resolveImage(imageUrl);
+      console.log(`🖼️  Image attached (${resolved.mimeType})`);
+    } catch (err) {
+      return res.status(400).json({ success: false, error: `Could not load image: ${err.message}` });
+    }
+  }
   // Build the generateVideos config (mirrors the reference template)
   const videoConfig = {
     model: 'veo-3.1-generate-preview',
     prompt,
     config: {
       aspectRatio,
+
     },
+    image: resolved ? {
+      imageBytes: resolved.imageBytes,
+      mimeType: resolved.mimeType,
+    } : undefined,
   };
 
-  // Attach image when provided (image-to-video mode)
-  if (imageUrl) {
-    try {
-      const resolved = await resolveImage(imageUrl);
-      videoConfig.image = resolved;
-      console.log(`🖼️  Image attached (${resolved.mimeType})`);
-    } catch (err) {
-      return res.status(400).json({ success: false, error: `Could not load image: ${err.message}` });
-    }
-  }
+  console.log('⚙️  Config:', JSON.stringify(videoConfig, null, 2));
 
   // ── Generate ──────────────────────────────────────────────────────────────
 
