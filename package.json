@@ -1,20 +1,14 @@
 {
   "name": "veo-vercel-bridge",
   "version": "1.0.0",
-  "description": "Vercel API bridge between n8n and Google Veo 3 using Bun",
+  "description": "Vercel API bridge between n8n and Google Veo 3",
   "main": "api/generate.ts",
   "scripts": {
     "dev": "vercel dev",
-    "build": "next build",
-    "start": "vercel dev",
-    "deploy": "vercel --prod"
+    "build": "echo 'No build step required for serverless functions'",
+    "install": "bun install"
   },
-  "keywords": [
-    "n8n",
-    "veo3",
-    "google-ai",
-    "vercel"
-  ],
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {

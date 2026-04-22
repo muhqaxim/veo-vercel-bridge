@@ -1,6 +1,7 @@
 {
+    "version": 2,
     "functions": {
-        "api/generate.js": {
+        "api/*.js": {
             "maxDuration": 300
         }
     }
